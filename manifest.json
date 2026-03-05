@@ -1,26 +1,28 @@
 {
   "name": "Meta Card",
   "short_name": "MetaCard",
-  "start_url": "/index.html",
+  "description": "Digital contact card manager PWA",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#111827",
   "theme_color": "#4F46E5",
-  "description": "A progressive web app for managing and organizing digital contact cards.",
   "icons": [
     {
-      "src": "/assets/logo.jpg",
+      "src": "assets/icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpg"
+      "type": "image/png"
     },
     {
-      "src": "/assets/logo.jpg",
+      "src": "assets/icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpg"
+      "type": "image/png"
     },
     {
-      "src": "/assets/maskable-icon.jpg",
-      "sizes": "192x192",
-      "type": "image/jpg",
+      "src": "assets/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ]
