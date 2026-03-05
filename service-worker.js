@@ -1,97 +1,97 @@
-const CACHE_NAME = "meta-card-cache-v2";
+const CACHE_NAME = "metacard-pwa-v1";
 
-const CORE_ASSETS = [
-  "/",
-  "/index.html",
-  "/manifest.json"
+/* CORE FILES */
+const CORE_FILES = [
+  "./",
+  "./index.html",
+  "./manifest.json"
 ];
 
-const OPTIONAL_ASSETS = [
-  "/assets/logo.jpg",
-  "/assets/icon-192x192.png",
-  "/assets/icon-512x512.png",
-  "/assets/icon-maskable.png"
+/* OPTIONAL FILES */
+const OPTIONAL_FILES = [
+  "./assets/icon-192.png",
+  "./assets/icon-512.png",
+  "./assets/icon-maskable.png",
+  "./assets/logo.jpg"
 ];
 
-// INSTALL
-self.addEventListener("install", (event) => {
+/* INSTALL EVENT */
+self.addEventListener("install", event => {
+
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
+    caches.open(CACHE_NAME).then(async cache => {
 
-      // Cache core assets
-      await cache.addAll(CORE_ASSETS);
+      await cache.addAll(CORE_FILES);
 
-      // Cache optional assets safely
-      for (const url of OPTIONAL_ASSETS) {
+      for (const file of OPTIONAL_FILES) {
         try {
-          await cache.add(url);
+          await cache.add(file);
         } catch (err) {
-          console.warn("Optional asset failed:", url);
+          console.warn("Optional asset failed:", file);
         }
       }
 
-    }).then(() => {
-      return self.skipWaiting();
-    })
+    }).then(() => self.skipWaiting())
   );
+
 });
 
-// ACTIVATE
-self.addEventListener("activate", (event) => {
+
+/* ACTIVATE EVENT */
+self.addEventListener("activate", event => {
 
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then(keys => {
+
       return Promise.all(
-        keys.map((key) => {
+        keys.map(key => {
+
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
+
         })
       );
-    }).then(() => {
-      return self.clients.claim();
-    })
+
+    }).then(() => self.clients.claim())
   );
 
 });
 
-// FETCH
-self.addEventListener("fetch", (event) => {
+
+/* FETCH EVENT */
+self.addEventListener("fetch", event => {
 
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Skip chrome extensions
   if (url.protocol !== "http:" && url.protocol !== "https:") return;
 
   event.respondWith(
 
-    caches.match(event.request).then((cached) => {
+    caches.match(event.request).then(cacheResponse => {
 
-      if (cached) {
-        return cached;
-      }
+      if (cacheResponse) return cacheResponse;
 
-      return fetch(event.request).then((response) => {
+      return fetch(event.request).then(networkResponse => {
 
-        if (!response || response.status !== 200) {
-          return response;
+        if (!networkResponse || networkResponse.status !== 200) {
+          return networkResponse;
         }
 
-        const clone = response.clone();
+        const clone = networkResponse.clone();
 
-        caches.open(CACHE_NAME).then((cache) => {
+        caches.open(CACHE_NAME).then(cache => {
           cache.put(event.request, clone);
         });
 
-        return response;
+        return networkResponse;
 
       }).catch(() => {
 
-        // offline fallback
         if (event.request.mode === "navigate") {
-          return caches.match("/index.html");
+          return caches.match("./index.html");
         }
 
       });
